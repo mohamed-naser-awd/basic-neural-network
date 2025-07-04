@@ -1,9 +1,7 @@
 from network.network import Network
-from network.controller import Controller
 from network.layer import Layer
-from network.trainer import Trainer
 
-from data import x_train, y_train, x_test, y_test
+from data import x_train, y_train
 import pathlib
 import os
 
@@ -36,8 +34,7 @@ class App:
             )
         )
 
-        controller = Controller()
-        Trainer(self.network, controller).train(x_train, y_train)
+        self.network.train(x_train, y_train)
 
 
 if __name__ == "__main__":

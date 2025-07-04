@@ -1,8 +1,13 @@
 from .layer import Layer
+from network import mixins
 import json
 
 
-class Network:
+class Network(
+    mixins.LayerConnectionMixin,
+    mixins.TrainerMixin,
+    mixins.ComputeMixin,
+):
     name: str
     layers: list[Layer]
 
