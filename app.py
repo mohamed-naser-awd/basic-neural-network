@@ -1,6 +1,9 @@
 from network.network import Network
+from network.controller import Controller
 from network.layer import Layer
-from data import x_train_7
+from network.trainer import Trainer
+
+from data import x_train, y_train, x_test, y_test
 import pathlib
 import os
 
@@ -15,27 +18,26 @@ class App:
         self.network.add_layer(
             Layer(
                 name="INPUT_LAYER",
-                num_nodes=3,
+                num_nodes=28 * 28,
             )
         )
 
         self.network.add_layer(
             Layer(
                 name="HIDDEN_LAYER_1",
-                num_nodes=3,
+                num_nodes=64,
             )
         )
 
         self.network.add_layer(
             Layer(
                 name="OUTPUT_LAYER",
-                num_nodes=3,
+                num_nodes=10,
             )
         )
 
-        self.network.train(x_train_7)
-
-        print(f"Network '{self.network.name}' has been trained with {len(x_train_7)} samples.")
+        controller = Controller()
+        Trainer(self.network, controller).train(x_train, y_train)
 
 
 if __name__ == "__main__":
