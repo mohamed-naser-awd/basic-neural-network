@@ -37,7 +37,7 @@ class Trainer:
 
         predicted_number = predicted_output_map[
             max(
-                *list(predicted_output_map)
+                predicted_output_map
             )
         ]
 
