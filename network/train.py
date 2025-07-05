@@ -29,15 +29,17 @@ class NetworkTrainer:
         predicted_output_map, predicted_number = self.network.compute(input)
         loss = cross_entropy_loss([i[1] for i in predicted_output_map], true_output)
 
-        if loss > 0.5:
+        if loss > 0.3:
             self.adjust_output(predicted_number, true_output, predicted_output_map)
 
     def adjust_output(self, predicted_output, true_output, predicted_output_map):
-        print(f"adjusting output, predicted: {predicted_output}, true: {true_output}")
 
         wrong_nodes = self.get_wrong_nodes(
             predicted_output, true_output, predicted_output_map
         )
+
+        print(f"adjusting output, predicted: {predicted_output}, true: {true_output}, number of wrong nodes: {len(wrong_nodes)}")
+
 
         for node, dl_dz in wrong_nodes:
             self.update_output_node_weights(node, dl_dz, settings.LEARNING_RATE)
@@ -65,4 +67,9 @@ class NetworkTrainer:
             gradient = dL_dz * a_prev
 
             # Update: w = w - lr * gradient
-            sender_node.weights[wrong_node.id] = weight - learning_rate * gradient
+            new_weight = weight - learning_rate * gradient
+
+            sender_node.weights[wrong_node.id] = new_weight
+            sender_node.reset()
+
+        wrong_node.reset()

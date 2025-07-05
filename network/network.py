@@ -19,8 +19,8 @@ class Network:
         """
         1. Normalize the input data into a single flat array to feed input nodes directly.
         """
-        max_length = 5
-        x, y = x_train, y_train
+        max_length = 1000_000_000
+        x, y = x_train[:max_length], y_train[:max_length]
 
         processed_x = []
 
@@ -90,8 +90,6 @@ class Network:
         self.pre_compute()
 
         self.set_input_layer_data(input)
-
-        print(f"output layer output is: {self.get_raw_output()}")
 
         output = softmax(self.get_raw_output())
 

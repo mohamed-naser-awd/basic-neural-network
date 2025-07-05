@@ -11,6 +11,7 @@ class Node:
     id: str
     input_nodes: list[Self]
     type: LayerEnum
+    input: float
 
     def __init__(self, type: LayerEnum, **kw):
         self.type = type
@@ -38,9 +39,18 @@ class Node:
         self._bias = value
         return self._bias
 
+    def get_hidden_node_input(self):
+        weighted_sum = 0
+
+        for node in self.input_nodes:
+            weighted_sum += node.get_next_node_input(self)
+
+        return weighted_sum
+
     def get_input(self):
         """
         Return the weighted sum collected from previous layer nodes
+        If its an input node: just return the input
         """
 
         if hasattr(self, "_input"):
@@ -48,24 +58,25 @@ class Node:
 
         weighted_sum = 0
 
-        for node in self.input_nodes:
-            weighted_sum += node.get_next_node_input(self)
+        if self.type == LayerEnum.INPUT:
+            weighted_sum += self.input
+
+        else:
+            weighted_sum += self.get_hidden_node_input()
 
         self._input = weighted_sum
-
-        print(f"weighted sum is {weighted_sum}")
 
         return self._input
 
     def get_output(self):
-        if self.type == LayerEnum.OUTPUT:
+        if self.type in [LayerEnum.OUTPUT, LayerEnum.INPUT]:
             return self.get_input()
 
-        if hasattr(self, "_activation_input"):
-            return self._activation_input
+        if hasattr(self, "_activation_output"):
+            return self._activation_output
 
-        self._activation_input = relu(self.get_input())
-        return self._activation_input
+        self._activation_output = relu(self.get_input())
+        return self._activation_output
 
     def add_weight(self, link_name: str, weight=None):
         if weight is None:
@@ -81,5 +92,11 @@ class Node:
     def get_next_node_input(self, next_node: Self):
         next_node_id = next_node.id
         next_node_weight = self.weights[next_node_id]
-        print(f"next node weight is: {next_node_weight}")
         return next_node_weight * self.get_output()
+
+    def reset(self):
+        if hasattr(self, "_activation_output"):
+            del self._activation_output
+
+        if hasattr(self, "_input") and self.type != LayerEnum.INPUT:
+            del self._input
