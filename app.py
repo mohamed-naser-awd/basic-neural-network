@@ -1,11 +1,9 @@
 from network.network import Network
-from network.layer import Layer
+from network.layer import Layer, LayerEnum
 
 from data import x_train, y_train
-import pathlib
 import os
-
-BASE_DIR = pathlib.Path(__file__).parent
+import settings
 
 
 class App:
@@ -17,6 +15,7 @@ class App:
             Layer(
                 name="INPUT_LAYER",
                 num_nodes=28 * 28,
+                type=LayerEnum.INPUT,
             )
         )
 
@@ -24,6 +23,7 @@ class App:
             Layer(
                 name="HIDDEN_LAYER_1",
                 num_nodes=64,
+                type=LayerEnum.HIDDEN,
             )
         )
 
@@ -31,6 +31,7 @@ class App:
             Layer(
                 name="OUTPUT_LAYER",
                 num_nodes=10,
+                type=LayerEnum.OUTPUT,
             )
         )
 
@@ -41,5 +42,11 @@ if __name__ == "__main__":
     app = App()
     app.run()
 
-    export_path = os.path.join(BASE_DIR, "data", "exported_network.json")
+    export_folder = os.path.join(
+        settings.BASE_DIR,
+        "data",
+    )
+    os.makedirs(export_folder, exist_ok=True)
+
+    export_path = os.path.join(export_folder, "exported_network.json")
     app.network.export(output_path=export_path)
