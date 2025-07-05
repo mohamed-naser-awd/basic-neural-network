@@ -16,11 +16,11 @@ class LayerConnectionMixin:
 
         for receiver_node in receiver_nodes:
             receiver_node_inputs = []  # sent to receiver node
-            receiver_node.connected_nodes = sender_nodes
+            receiver_node.input_nodes = sender_nodes
 
             for sender_node in sender_nodes:
                 # Assuming each node has a method to get its output
-                output = sender_node.get_activation_output(receiver_node)
+                output = sender_node.get_next_node_output(receiver_node)
                 receiver_node_inputs.append(output)
 
             receiver_node_input = sum(receiver_node_inputs)

@@ -1,7 +1,6 @@
 import numpy as np
 import uuid
 from typing import Self
-from utils.relu import relu
 from network.enum import LayerEnum
 
 
@@ -10,17 +9,20 @@ class Node:
     _input: float
     _bias: float
     id: str
-    connected_nodes: list[Self]
+    input_nodes: list[Self]
     activation_output: float
     type: LayerEnum
 
-    def __init__(self, type: LayerEnum):
+    def __init__(self, type: LayerEnum, **kw):
         self.type = type
         self.id = str(uuid.uuid4().hex)
         self.weights = {}
         self._input = None
         self.bias = np.random.rand()
-        self.connected_nodes = []
+        self.input_nodes = []
+
+        for k, v in kw.items():
+            setattr(self, k, v)
 
     @property
     def bias(self):
@@ -67,7 +69,7 @@ class Node:
         next_node_id = next_node.id
         next_node_weight = self.weights.get(next_node_id)
 
-        if not next_node_weight:
+        if next_node_weight is None:
             next_node_weight = self.add_weight(next_node_id, np.random.rand())
 
         return next_node_weight * self.input

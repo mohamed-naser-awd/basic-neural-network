@@ -23,7 +23,7 @@ class Network(
         1. Normalize the input data into a single flat array to feed input nodes directly.
         """
         max_length = 5
-        x, y = x_train[:max_length], y_train[:max_length]
+        x, y = x_train, y_train
 
         processed_x = []
 

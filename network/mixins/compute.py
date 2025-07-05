@@ -14,6 +14,8 @@ class ComputeMixin:
             (idx, output[idx]) for idx in range(len(self.output_layer.nodes))
         ]
 
+        print(f"predicted_output_map is {predicted_output_map}")
+
         sorted_predictions = sorted(
             predicted_output_map,
             key=lambda prediction: prediction[1],
@@ -21,5 +23,5 @@ class ComputeMixin:
         )
 
         confident = sorted_predictions[0]
-        predicted_number = confident[-1]
+        predicted_number = confident[0]
         return predicted_output_map, predicted_number
