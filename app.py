@@ -1,5 +1,6 @@
 from network.network import Network
 from network.layer import Layer, LayerEnum
+from network.train import NetworkTrainer
 
 from data import x_train, y_train
 import os
@@ -35,7 +36,8 @@ class App:
             )
         )
 
-        self.network.train(x_train, y_train)
+        trainer = NetworkTrainer(self.network)
+        trainer.train(x_train, y_train)
 
 
 if __name__ == "__main__":

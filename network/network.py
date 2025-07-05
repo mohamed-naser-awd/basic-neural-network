@@ -1,19 +1,16 @@
 from .layer import Layer
-from network import mixins
+from utils.softmax import softmax
 import json
 
 
-class Network(
-    mixins.LayerConnectionMixin,
-    mixins.TrainerMixin,
-    mixins.ComputeMixin,
-):
+class Network:
     name: str
     layers: list[Layer]
 
     def __init__(self, name):
         self.name = name
         self.layers = []
+        self.is_connected = False
 
     def add_layer(self, layer: Layer):
         self.layers.append(layer)
@@ -71,3 +68,47 @@ class Network(
 
         with open(output_path, "w") as f:
             json.dump(data, f, indent=4)
+
+    def connect_layers(self, sender: Layer, receiver: Layer):
+        receiver_nodes = receiver.nodes
+        sender_nodes = sender.nodes
+
+        for receiver_node in receiver_nodes:
+            receiver_node.input_nodes = sender_nodes
+
+            for sender_node in sender_nodes:
+                # Assuming each node has a method to get its output
+                sender_node.add_weight(receiver_node.id)
+
+    def pre_compute(self):
+        if not self.is_connected:
+            for sender, receiver in self.loop_through_layers():
+                self.connect_layers(sender, receiver)
+            self.is_connected = True
+
+    def compute(self, input: list[float]):
+        self.pre_compute()
+
+        self.set_input_layer_data(input)
+
+        print(f"output layer output is: {self.get_raw_output()}")
+
+        output = softmax(self.get_raw_output())
+
+        predicted_output_map = [
+            (idx, output[idx]) for idx in range(len(self.output_layer.nodes))
+        ]
+
+        sorted_predictions = sorted(
+            predicted_output_map,
+            key=lambda prediction: prediction[1],
+            reverse=True,
+        )
+
+        confident = sorted_predictions[0]
+        predicted_number = confident[0]
+        return predicted_output_map, predicted_number
+
+    def get_raw_output(self):
+        output = [node.get_output() for node in self.output_layer.nodes]
+        return output
