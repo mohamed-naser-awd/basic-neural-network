@@ -1,6 +1,7 @@
 from .layer import Layer
 from utils.softmax import softmax
 import json
+import settings
 
 
 class Network:
@@ -19,8 +20,12 @@ class Network:
         """
         1. Normalize the input data into a single flat array to feed input nodes directly.
         """
-        max_length = 1000_000_000
-        x, y = x_train[:max_length], y_train[:max_length]
+        max_length = settings.MAX_TRAIN_SET
+
+        if max_length:
+            x, y = x_train[:max_length], y_train[:max_length]
+        else:
+            x, y = x_train, y_train
 
         processed_x = []
 

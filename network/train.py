@@ -4,6 +4,9 @@ from network.network import Network
 import settings
 
 
+class OverFitException(Exception):
+    """Raised when the network is done training one an image"""
+
 class NetworkTrainer:
     """
     Does the actual network training
@@ -23,14 +26,20 @@ class NetworkTrainer:
         x_train, y_train = self.network.preprocess(x_train, y_train)
 
         for input, output in zip(x_train, y_train):
-            self.train_from_sample(input, output)
+            while True:
+                try:
+                    self.train_from_sample(input, output)
+                except OverFitException:
+                    break
 
     def train_from_sample(self, input, true_output):
         predicted_output_map, predicted_number = self.network.compute(input)
         loss = cross_entropy_loss([i[1] for i in predicted_output_map], true_output)
 
-        if loss > 0.3:
+        if loss > 0.1:
             self.adjust_output(predicted_number, true_output, predicted_output_map)
+        else:
+            raise OverFitException
 
     def adjust_output(self, predicted_output, true_output, predicted_output_map):
 

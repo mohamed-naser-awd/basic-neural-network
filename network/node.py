@@ -6,7 +6,7 @@ from utils.relu import relu
 
 
 class Node:
-    weight: dict[str, float]
+    weights: dict[str, float]
     _bias: float
     id: str
     input_nodes: list[Self]
@@ -15,10 +15,10 @@ class Node:
 
     def __init__(self, type: LayerEnum, **kw):
         self.type = type
-        self.id = str(uuid.uuid4().hex)
-        self.weights = {}
-        self.bias = np.random.rand()
-        self.input_nodes = []
+        kw.setdefault("id", str(uuid.uuid4().hex))
+        kw.setdefault("weights", {})
+        kw.setdefault("bias", np.random.rand())
+        kw.setdefault("input_nodes", [])
 
         for k, v in kw.items():
             setattr(self, k, v)
@@ -82,17 +82,22 @@ class Node:
         if weight is None:
             weight = np.random.rand()
 
-        self.weights[link_name] = weight
+        self.weights.setdefault(link_name, weight)
 
         return weight
 
     def export(self):
-        return {"weights": self.weights, "id": self.id}
+        return {
+            "weights": self.weights,
+            "id": self.id,
+            "bias": self.bias,
+        }
 
     def get_next_node_input(self, next_node: Self):
         next_node_id = next_node.id
         next_node_weight = self.weights[next_node_id]
-        return next_node_weight * self.get_output()
+        res = next_node_weight * self.get_output()
+        return res
 
     def reset(self):
         if hasattr(self, "_activation_output"):
